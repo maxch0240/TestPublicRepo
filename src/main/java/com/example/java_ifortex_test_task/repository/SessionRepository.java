@@ -20,6 +20,13 @@ public interface SessionRepository extends JpaRepository<Session, Long> {
     """, nativeQuery = true)
     Session getFirstDesktopSession(@Param("deviceType") DeviceType deviceType);
 
-//    @Query(value = "", nativeQuery = true)
-//    List<Session> getSessionsFromActiveUsersEndedBefore2025(LocalDateTime endDate);
+    @Query(value = """
+    SELECT s.* FROM sessions s
+    JOIN users u ON s.user_id = u.id
+    WHERE u.deleted = FALSE
+    AND s.ended_at_utc IS NOT NULL
+    AND s.ended_at_utc < :endDate
+    ORDER BY s.started_at_utc DESC
+    """, nativeQuery = true)
+    List<Session> getSessionsFromActiveUsersEndedBefore2025(@Param("endDate") LocalDateTime endDate);
 }
